@@ -62,55 +62,168 @@
 
 <script>
 /* ============================================================
+  /* ============================================================
    ADD YOUR NEWS HERE. Copy the block below for each new story.
-   date: "YYYY-MM-DD"   category: pick any short label you like
+   date: "YYYY-MM-DD"   category: Pick any short label you like
    ============================================================ */
+
 const NEWS = [
-    {
+  {
     date: "2026-09-28",
     category: "Markets",
     title: "Rupee down about 6.5% this year, trading near historic lows",
     points: [
       "The rupee is down about 6.5% this year against the dollar and trading near historic lows.",
-      "Persistent outflows from Indian financial assets and elevated crude prices add to the pressure."],
-    url: "https://www.fxstreet.com/analysis/warning-the-rbis-october-rate-hike-may-be-too-late-as-oil-risks-mount-202609280914"},
-/* ============================================================ */
+      "Persistent outflows from Indian financial assets and elevated crude prices add to the pressure."
+    ],
+    url: "https://www.fxstreet.com/analysis/warning-the-rbis-october-rate-hike-may-be-too-late-as-oil-risks-mount-20260928914"
+  }
+];
 
-function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function fmtDate(iso){
-  const d=new Date(iso+'T00:00:00');
-  if(isNaN(d)) return iso;
-  return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
+function esc(s) {
+  return (s || "").replace(/[<>&"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[c]));
 }
 
-function render(){
-  const feed=document.getElementById('feed');
-  const index=document.getElementById('index');
-  if(!NEWS.length){ feed.innerHTML='<p class="empty">No stories yet. Add your first entry in the NEWS array.</p>'; return; }
+function fmtDate(iso) {
+  const d = new Date(iso + "T00:00:00");
 
-  const sorted=[...NEWS].sort((a,b)=> b.date.localeCompare(a.date));
-  const byCat={};
-  sorted.forEach(n=>{ (byCat[n.category] ||= []).push(n); });
+  if (isNaN(d)) return iso;
 
-  index.innerHTML='<div class="label">Sections</div>' + Object.keys(byCat).map(cat=>
-    `<a href="#${esc(cat).replace(/\s+/g,'-')}">${esc(cat)} <span class="count">(${byCat[cat].length})</span></a>`
-  ).join('');
+  return d.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
 
-  feed.innerHTML=Object.entries(byCat).map(([cat,items])=>`
-    <section class="category" id="${esc(cat).replace(/\s+/g,'-')}">
-      <h2>${esc(cat)}</h2>
-      ${items.map(n=>`
-        <article class="item">
-          <div class="date">${fmtDate(n.date)}</div>
-          <h3>${esc(n.title)}</h3>
-          <p>${esc(n.summary)}</p>
-          ${n.url ? `<a href="${esc(n.url)}" target="_blank" rel="noopener">Read source ↗</a>` : ''}
-        </article>
-      `).join('')}
+/* ============================================================
+   RENDER
+   ============================================================ */
+
+function render() {
+  const feed = document.getElementById("feed");
+  const index = document.getElementById("index");
+
+  if (!feed || !index) {
+    console.error("Missing #feed or #index element in the HTML.");
+    return;
+  }
+
+  /* No news */
+  if (!NEWS.length) {
+    feed.innerHTML =
+      '<p class="empty">No stories yet. Add your first entry in the NEWS array.</p>';
+
+    index.innerHTML = "";
+    return;
+  }
+
+  /* Sort newest first */
+  const sorted = [...NEWS].sort((a, b) =>
+    b.date.localeCompare(a.date)
+  );
+
+  /* Group stories by category */
+  const byCat = {};
+
+  sorted.forEach(n => {
+    if (!byCat[n.category]) {
+      byCat[n.category] = [];
+    }
+
+    byCat[n.category].push(n);
+  });
+
+  /* ==========================================================
+     CATEGORY INDEX
+     ========================================================== */
+
+  index.innerHTML =
+    '<div class="label">Sections</div>' +
+    Object.keys(byCat).map(cat => `
+      <a href="#cat-${encodeURIComponent(cat)}">
+        ${esc(cat)}
+        <span class="count">${byCat[cat].length}</span>
+      </a>
+    `).join("");
+
+  /* ==========================================================
+     NEWS FEED
+     ========================================================== */
+
+  feed.innerHTML = Object.keys(byCat).map(cat => `
+    <section class="news-section" id="cat-${encodeURIComponent(cat)}">
+
+      <div class="section-heading">
+        <h2>${esc(cat)}</h2>
+        <span>${byCat[cat].length}
+          ${byCat[cat].length === 1 ? "story" : "stories"}
+        </span>
+      </div>
+
+      <div class="stories">
+
+        ${byCat[cat].map(n => `
+          <article class="story">
+
+            <div class="story-date">
+              ${esc(fmtDate(n.date))}
+            </div>
+
+            <h3>${esc(n.title)}</h3>
+
+            ${
+              Array.isArray(n.points)
+                ? `
+                  <ul>
+                    ${n.points.map(point => `
+                      <li>${esc(point)}</li>
+                    `).join("")}
+                  </ul>
+                `
+                : ""
+            }
+
+            ${
+              n.url
+                ? `
+                  <a
+                    href="${esc(n.url)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="read-more"
+                  >
+                    Read source →
+                  </a>
+                `
+                : ""
+            }
+
+          </article>
+        `).join("")}
+
+      </div>
+
     </section>
-  `).join('');
+  `).join("");
 }
-render();
-</script>
-</body>
-</html>
+
+/* ============================================================
+   START
+   ============================================================ */
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", render);
+} else {
+  render();
+}
