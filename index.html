@@ -66,21 +66,17 @@
    date: "YYYY-MM-DD"   category: pick any short label you like
    ============================================================ */
 const NEWS = [
-  {
-    date: "2026-09-24",
-    category: "Markets",
-    title: "DHL Express to raise shipment charges by 8.9pc in India starting January",
-    summary:"Mumbai Logistics operator DHL Express on Saturday announced an 8.9 per cent increase in its shipment charges in India from January 1 next year",
+   {
+    date: "2026-09-28",
+    category: "Policy",
+    title: "Net borrowing stays on budget, but bond yields in focus as rate hike looms",
+    points: [
+      "Net FY27 borrowing stays on budget, even though gross borrowing is cut.",
+      "The gross cut mainly reflects switches of maturing debt, so the funding need is unchanged.",
+      "With a rate hike likely, steady bond supply plus rising rates keeps yields in focus."
+    ],
     url: ""
   },
-  {
-    date: "2026-09-20",
-    category: "Policy",
-    title: "RBI keeps repo rate unchanged, flags inflation risks",
-    summary: "The central bank held its policy rate steady for a third straight meeting, citing sticky food inflation, while signalling room to cut later this year if trends ease.",
-    url: ""
-  }
-];
 /* ============================================================ */
 
 function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
